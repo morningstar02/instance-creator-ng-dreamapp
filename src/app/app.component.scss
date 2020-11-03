@@ -8,3 +8,10 @@ mat-form-field {
     max-height: 400px;
     overflow: auto;
   }
+
+  .fixedElement {
+    position:fixed;
+    top:0;
+    width:100%;
+    z-index:100;
+}

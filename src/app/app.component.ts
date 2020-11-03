@@ -22,11 +22,20 @@ export class AppComponent {
   imageId = '';
   instanceType = '';
   keyName = '';
+  inputKeyName = 'react-node';
+  inputInstanceType = 't2.micro';
+  inputAmiId = 'ami-0947d2ba12ee1ff75';
+  externalId = 'react-node';
+  instanceName = '007';
+  //keyName, instanceType, amiId, externalId, instanceName
   launchTime = '';
   privateDnsName = '';
+  ssmCommand = 'ls -a';
+  standardOutput = '';
   instanceTableDataSource: instanceElement[];
   arn: string = 'arn:aws:iam::400525531427:role/react-node';
-  displayedColumns: string[] = ['instanceId', 'instanceType', 'PrivateIpAddress', 'PublicIpAddress'];
+  region: string = 'us-east-1';
+  displayedColumns: string[] = ['instanceId', 'instanceType', 'PrivateIpAddress', 'PublicIpAddress', 'ssmCommand'];
   constructor(
     public awsService: AwsService, private _snackBar: MatSnackBar
   ) { 
@@ -35,17 +44,18 @@ export class AppComponent {
   
   openSnackBar(message: string, action: string) {
     this._snackBar.open(message, action, {
-      duration: 2000,
+      duration: 20000,
     });
   }
-
+//keyName, instanceType, amiId, externalId, instanceName
   async createInstance(arn, event) {
     event.stopPropagation();
     this.showSpinner = true;
     console.log(arn);
-    this.awsService.createInstance(arn).subscribe(
+    this.awsService.createInstance(arn, this.region, this.inputKeyName, this.inputInstanceType, 
+      this.inputAmiId, this.externalId, this.instanceName).subscribe(
       data => {
-        this.openSnackBar('Free-tier instance created', 'Ok');
+        this.openSnackBar('🚀 Instance created', 'Ok');
         this.showSpinner = false;
         let instanceData = data['instanceData'];
         this.instanceId = instanceData.InstanceId;
@@ -57,6 +67,7 @@ export class AppComponent {
         console.log(data)
       },
       error => {
+        this.openSnackBar(JSON.stringify(error) , 'Ok');
         this.showSpinner = false;
         console.log(error);
       }
@@ -66,7 +77,7 @@ export class AppComponent {
   async listInstances(arn) {
     this.showSpinner = true;
     console.log(arn);
-    this.awsService.listInstances(arn).subscribe(
+    this.awsService.listInstances(arn, this.region, this.externalId, this.inputInstanceType).subscribe(
       data => {
         console.log(data)
         this.showSpinner = false;
@@ -87,6 +98,29 @@ export class AppComponent {
       error => {
         this.showSpinner = false;
         console.log(error);
+        this.openSnackBar(JSON.stringify(error) , 'Ok');
+      }
+    );
+  }
+
+  async runSSMCommand(arn, instanceId, command) {
+    this.showSpinner = true;
+    console.log(arn);
+    this.awsService.runSSMCommand(arn, this.region, instanceId ,this.externalId, command).subscribe(
+      data => {
+        console.log(data)
+        this.showSpinner = false;
+        if(data.Status == 'Success') {
+          this.standardOutput = data.StandardOutputContent;
+        } else {
+          this.standardOutput = data.StandardErrorContent;
+        }
+
+      },
+      error => {
+        this.showSpinner = false;
+        console.log(error);
+        this.openSnackBar(JSON.stringify(error) , 'Ok');
       }
     );
   }
