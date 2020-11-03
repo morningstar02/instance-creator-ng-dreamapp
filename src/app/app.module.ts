@@ -13,11 +13,16 @@ import {MatTableModule} from '@angular/material/table'
 import { HttpClientModule } from '@angular/common/http';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatIconModule} from '@angular/material/icon';
+
 @NgModule({
   declarations: [
     AppComponent 
   ],
   imports: [
+    MatIconModule,
+    MatSnackBarModule,
     MatProgressSpinnerModule,
     MatInputModule,
     MatTableModule,
